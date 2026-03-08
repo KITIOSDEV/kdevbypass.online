@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>KITDEV BYPASS</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+body{
+font-family:system-ui;
+background:radial-gradient(circle at top,#0f172a 0%,#020617 100%);
+color:#e5e7eb;
+overflow:hidden;
+}
+
+.glass{
+background:rgba(15,23,42,.65);
+border:1px solid rgba(99,102,241,.25);
+backdrop-filter:blur(18px);
+box-shadow:0 0 25px rgba(79,70,229,.15);
+}
+
+.loader{border-top-color:transparent;animation:spin 1s linear infinite}
+@keyframes spin{100%{transform:rotate(360deg)}}
+
+input{
+background:#020617 !important;
+border:1px solid rgba(99,102,241,.4);
+color:white;
+}
+
+#output{
+background:rgba(99,102,241,.08);
+border:1px solid rgba(99,102,241,.25);
+}
+
+#rain{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+z-index:-1;
+pointer-events:none;
+}
+</style>
+</head>
+
+<body class="min-h-screen flex flex-col items-center p-4">
+
+<canvas id="rain"></canvas>
+
+<div class="glass rounded-3xl p-10 text-center mt-20 w-full max-w-2xl">
+
+<h1 class="text-5xl font-extrabold uppercase shimmer mb-6">KITDEV</h1>
+
+<input id="url"
+class="w-full p-5 rounded-2xl outline-none font-semibold text-sm"
+placeholder="Dán link cần bypass">
+
+<button onclick="bypass()"
+class="w-full mt-6 py-5 bg-indigo-600 text-white rounded-2xl font-bold flex justify-center gap-3">
+
+<span id="btnText">BẮT ĐẦU BYPASS</span>
+
+<div id="spin"
+class="hidden w-5 h-5 border-2 border-white/30 border-t-white loader rounded-full"></div>
+
+</button>
+
+<div id="output" class="hidden mt-6 p-6 rounded-2xl">
+
+<div class="flex justify-between text-xs uppercase mb-4">
+<span>Kết quả</span>
+<button onclick="copy()">SAO CHÉP</button>
+</div>
+
+<div id="result" class="break-all text-indigo-300 font-semibold"></div>
+
+</div>
+
+</div>
+
+<script>
+
+let resultLink="";
+
+async function bypass(){
+
+let u=document.getElementById("url").value.trim();
+if(!u)return;
+
+btnText.innerText="ĐANG BYPASS...";
+spin.classList.remove("hidden");
+
+try{
+
+let r = await fetch(
+"https://api.izen.lol/v1/bypass?url="+encodeURIComponent(u),
+{
+headers:{
+"x-api-key":"30eb2b74-2ebb-4852-ad0f-17a0e6fa35b7"
+}
+}
+);
+
+let d = await r.json();
+
+resultLink=d.data||d.result||d.url||"Không bypass được";
+
+result.innerText=resultLink;
+
+output.classList.remove("hidden");
+
+}catch{
+
+result.innerText="BYPASS THẤT BẠI";
+
+}
+
+btnText.innerText="BẮT ĐẦU BYPASS";
+spin.classList.add("hidden");
+
+}
+
+function copy(){
+navigator.clipboard.writeText(resultLink);
+}
+
+const canvas=document.getElementById("rain");
+const ctx=canvas.getContext("2d");
+
+let w,h;
+
+function resize(){
+w=canvas.width=window.innerWidth;
+h=canvas.height=window.innerHeight;
+}
+
+resize();
+window.onresize=resize;
+
+let drops=[];
+
+for(let i=0;i<150;i++){
+drops.push({x:Math.random()*w,y:Math.random()*h,l:Math.random()*20+10,s:Math.random()*4+4});
+}
+
+function draw(){
+
+ctx.clearRect(0,0,w,h);
+
+ctx.strokeStyle="rgba(148,163,255,0.25)";
+ctx.lineWidth=1;
+
+for(let d of drops){
+
+ctx.beginPath();
+ctx.moveTo(d.x,d.y);
+ctx.lineTo(d.x,d.y+d.l);
+ctx.stroke();
+
+d.y+=d.s;
+
+if(d.y>h){
+d.y=-20;
+d.x=Math.random()*w;
+}
+
+}
+
+requestAnimationFrame(draw);
+
+}
+
+draw();
+
+</script>
+
+</body>
+</html>
